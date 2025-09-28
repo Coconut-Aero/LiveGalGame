@@ -73,6 +73,8 @@ import java.io.IOException
 import java.util.concurrent.ExecutorService
 import androidx.camera.core.Preview as CameraPreview
 import androidx.core.content.ContextCompat
+import android.media.MediaPlayer
+import java.lang.IllegalStateException
 
 @Composable
 fun CameraScreen(cameraExecutor: ExecutorService) {
@@ -168,6 +170,23 @@ fun CameraScreen(cameraExecutor: ExecutorService) {
 
     // --- 核心逻辑：绑定相机和资源管理 ---
     DisposableEffect(lifecycleOwner) {
+        // BGM 播放器：尝试加载 assets/bgm.mp3 并循环播放
+        var mediaPlayer: MediaPlayer? = null
+        try {
+            val afd = context.assets.openFd("bgm.mp3")
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                isLooping = true
+                prepare()
+                start()
+            }
+            afd.close()
+            Log.d("CameraScreen", "BGM started from assets/bgm.mp3")
+        } catch (e: Exception) {
+            Log.w("CameraScreen", "Could not start BGM from assets/bgm.mp3: ${e.message}")
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -186,6 +205,14 @@ fun CameraScreen(cameraExecutor: ExecutorService) {
             speechService?.stop()
             speechService?.shutdown()
             model?.close()
+            // 释放 BGM 播放器
+            try {
+                mediaPlayer?.stop()
+            } catch (e: IllegalStateException) {
+                // 忽略停止时的状态异常
+            }
+            mediaPlayer?.release()
+            mediaPlayer = null
         }
     }
 
