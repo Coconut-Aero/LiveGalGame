@@ -116,10 +116,19 @@ fun CameraScreen(
     var progress by remember { mutableStateOf(0f) } // 0f 开始，逐渐增长到 1f
     var timeRemainingSec by remember { mutableStateOf(updateIntervalMs / 1000f) }
 
-    val affectionLevel = remember {
+    var affectionLevel by remember {
         val min = 1f / 3f
         val max = 2f / 3f
-        min + Random.nextFloat() * (max - min)
+        mutableStateOf(min + Random.nextFloat() * (max - min))
+    }
+
+    LaunchedEffect(Unit) {
+        val decayIntervalMs = 2000L
+        val decayStep = 0.01f
+        while (isActive) {
+            delay(decayIntervalMs)
+            affectionLevel = (affectionLevel - decayStep).coerceIn(0f, 1f)
+        }
     }
 
     // 新的状态管理：用于连续识别
@@ -661,12 +670,13 @@ private fun AffectionBar(
                 .padding(4.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
+            val fillColor = if (clamped <= 0.2f) Color(0xFFA21011) else Color(0xFFFF6FA5)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(clamped)
                     .clip(RoundedCornerShape(percent = 50))
-                    .background(Color(0xFFFF6FA5))
+                    .background(fillColor)
             )
         }
     }
