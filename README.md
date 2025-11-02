@@ -13,7 +13,7 @@ APP在/release文件夹中可以直接下载，报毒是正常状况，请放心
 <img width="2533" height="1427" alt="image" src="https://github.com/user-attachments/assets/65dd6c6f-bf47-4bc0-9695-034c7faa290d" />
 
 
-现在的软件在/release下，功能更完整的版本会后续发布
+现在的软件在[tag](https://github.com/JStone2934/LiveGalGame/tags)下，功能更完整的版本会后续发布
 
 CSDN下载链接：https://download.csdn.net/download/qq_63533710/92237453
 
